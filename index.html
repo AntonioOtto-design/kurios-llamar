@@ -3,17 +3,29 @@
 <title>Kurios · Llamar</title>
 <style>
 body{margin:0;min-height:100vh;display:grid;place-items:center;background:#131314;color:#e3e3e3;font:16px/1.4 Roboto,Arial,sans-serif;text-align:center}
-.box{padding:24px;max-width:360px}
+.box{padding:24px;max-width:380px}
 a.b{display:block;margin:14px 0;padding:18px;border-radius:999px;font-size:20px;font-weight:700;text-decoration:none}
-.call{background:#81c995;color:#0f2d1a}.sms{background:#fffc84;color:#1f1f1f}
-.n{font-size:26px;font-weight:700;letter-spacing:.5px}.m{color:#c4c7c5;font-size:14px}
-pre{white-space:pre-wrap;text-align:left;background:#1e1f20;border-radius:12px;padding:12px;font:14px/1.4 Roboto,Arial,sans-serif}
+.call{background:#81c995;color:#0f2d1a}.sms{background:#fffc84;color:#1f1f1f}.mail{background:#ea4335;color:#fff}.web{background:#3c4043;color:#e3e3e3;font-size:16px!important}
+.n{font-size:24px;font-weight:700;letter-spacing:.3px;word-break:break-all}.m{color:#c4c7c5;font-size:14px}
+pre{white-space:pre-wrap;text-align:left;background:#1e1f20;border-radius:12px;padding:12px;font:14px/1.4 Roboto,Arial,sans-serif;max-height:40vh;overflow:auto}
 </style></head><body><div class="box" id="box"></div>
 <script>
-var q=new URLSearchParams(location.search), n=(q.get('n')||'').replace(/[^\d+]/g,''), t=q.get('t')||'tel', b=q.get('b')||'', who=q.get('w')||'';
+var q=new URLSearchParams(location.search), t=q.get('t')||'tel', n=(q.get('n')||'').replace(/[^\d+]/g,''), b=q.get('b')||'', who=q.get('w')||'';
+var to=q.get('to')||'', su=q.get('su')||'';
 var box=document.getElementById('box');
+var mobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-if(!n){ box.innerHTML='<p>Falta el número.</p>'; }
+if(t==='gmail'){
+  var web='https://mail.google.com/mail/?view=cm&fs=1&tf=1'+(to?'&to='+encodeURIComponent(to):'')+'&su='+encodeURIComponent(su)+'&body='+encodeURIComponent(b);
+  var app='googlegmail:///co?'+(to?'to='+encodeURIComponent(to)+'&':'')+'subject='+encodeURIComponent(su)+'&body='+encodeURIComponent(b);
+  box.innerHTML='<div class="m">Correo para'+(who?' '+esc(who):'')+'</div><div class="n">'+esc(to||'(sin destinatario)')+'</div>'+
+    (mobile?'<a class="b mail" href="'+esc(app)+'">✉ Abrir en la app de Gmail</a>':'')+
+    '<a class="b '+(mobile?'web':'mail')+'" href="'+esc(web)+'">'+(mobile?'Abrir Gmail en el navegador':'✉ Abrir en Gmail')+'</a>'+
+    '<div class="m">Asunto: '+esc(su)+'</div><pre>'+esc(b)+'</pre><p class="m">Si no se abrió solo, toca el botón. Luego vuelve al panel.</p>';
+  if(mobile){ location.href=app; setTimeout(function(){ if(!document.hidden) location.href=web; },1800); }
+  else location.replace(web);
+}
+else if(!n){ box.innerHTML='<p>Falta el número.</p>'; }
 else{
   var tel='tel:'+n, sms='sms:'+n+(b?'&body='+encodeURIComponent(b):'');
   var url=t==='sms'?sms:tel;
